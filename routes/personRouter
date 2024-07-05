@@ -1,0 +1,74 @@
+const express = require('express');
+const router = express.Router();
+const person = require('./../Models/person');
+
+
+router.post('/', async (req, res)=>{
+    try{
+        const data = req.body;
+        const newperson = new person(data);
+        await newperson.save();
+        console.log('data saved')
+
+    }
+    catch(err){
+            console.log( err);
+        
+        
+
+    }
+})
+
+router.get('/', async (req, res)=>{
+    try {
+        const data = await person.find();
+        console.log('data fetched');
+        res.status(200).json(data);
+    }
+    catch(err) {
+        console.log(err);
+        res.stautus(500).json({error:'internal server error'});
+
+    }
+})
+
+router.put('/:id', async(req, res)=>{
+    try{
+        const personid = req.params.id;
+        const updatepersondata = req.body;
+
+        const response = await person.findByIdAndUpdate(personid, updatepersondata,{
+            new: true,
+            runValidators: true
+        })
+
+        if(!response){
+            return res.status(404).json({error:"person not found"});
+        }
+
+        console.log('data updated successfully');
+
+    }
+    catch(err){
+        console.log(err);
+        res.status(505).json({error:"internal server error"});
+    }
+})
+
+router.delete('/:id', async(req, res)=>{
+    try{
+        const personid = req.params.id;
+        const response = await person.findByIdAndDelete(personid);
+
+    if(!response){
+        return res.status(404).json({error:'person not found'});
+    }
+
+    console.log('data deleted succussfully');
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+
+module.exports = router;
